@@ -33,7 +33,6 @@
 **
 */
 
-#include <iostream>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "i_system.h"
@@ -42,40 +41,20 @@
 #include "version.h"	// for GAMENAME
 
 
-//===========================================================================
-//
-// GetEnvironmentVariable												Unix
-//
-// Returns the nice path specified in the given environemnt variable.
-// If the env variable is not defined or empty, use the given fallback.
-//
-//===========================================================================
-
-FString GetEnvironmentVariable(const char* varname, FString fallback) {
-	char * env = strdup(getenv(varname));
-	if ( env == NULL || strcmp(env, "") == 0)
-	{
-		// environment variable not defined or empty
-		return NicePath(fallback.GetChars());
-	} else {
-		return NicePath(env);
-	}
-}
-
 FString GetUserFile (const char *file)
 {
 	FString path;
 	struct stat info;
 
-	path = NicePath("$HOME/" GAME_DIR "/");
+	path = ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config");
+	path += "/" GAME_DIR "/";
 
 	if (stat (path, &info) == -1)
 	{
 		struct stat extrainfo;
 
 		// Sanity check for $HOME/.config
-		FString configPath = GetEnvironmentVariable("XDG_CONFIG_HOME", FString("$HOME/.config/"));
-		std::cout << "actual configPath: " << configPath.GetChars() << std::endl;
+		FString configPath = ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config");
 		if (stat (configPath, &extrainfo) == -1)
 		{
 			if (mkdir (configPath, S_IRUSR | S_IWUSR | S_IXUSR) == -1)
@@ -132,8 +111,8 @@ FString M_GetAppDataPath(bool create)
 {
 	// Don't use GAME_DIR and such so that ZDoom and its child ports can
 	// share the node cache.
-	FString path = GetEnvironmentVariable("XDG_CONFIG_HOME", FString("$HOME/.config/"));
-	path += GAMENAMELOWERCASE;
+	FString path = ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config");
+	path += "/" GAME_DIR;
 	if (create)
 	{
 		CreatePath(path);
@@ -153,7 +132,7 @@ FString M_GetCachePath(bool create)
 {
 	// Don't use GAME_DIR and such so that ZDoom and its child ports can
 	// share the node cache.
-	FString path = GetEnvironmentVariable("XDG_CONFIG_HOME", FString("$HOME/.config/"));
+	FString path = ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config");
 	path += "/zdoom/cache/";
 	if (create)
 	{
@@ -227,8 +206,8 @@ FString M_GetConfigPath(bool for_reading)
 
 FString M_GetScreenshotsPath()
 {
-	FString path = GetEnvironmentVariable("XDG_CONFIG_HOME", FString("$HOME/")+GAME_DIR);
-	return path + "/screenshots/";
+	FString path = ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config");
+	return path + "/" GAME_DIR "/screenshots/";
 }
 
 //===========================================================================
@@ -241,12 +220,12 @@ FString M_GetScreenshotsPath()
 
 FString M_GetSavegamesPath()
 {
-	return GetEnvironmentVariable("XDG_CONFIG_HOME", FString("$HOME/")+GAME_DIR);
+	return ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config") + "/" GAME_DIR;
 }
 
 //===========================================================================
 //
-// M_GetDocumentsPath													Unix
+// M_GetDocumentsPath												Unix
 //
 // Returns the path to the default documents directory.
 //
@@ -254,5 +233,5 @@ FString M_GetSavegamesPath()
 
 FString M_GetDocumentsPath()
 {
-	return GetEnvironmentVariable("XDG_CONFIG_HOME", FString("$HOME/")+GAME_DIR);
+	return ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config") + "/" GAME_DIR;
 }
