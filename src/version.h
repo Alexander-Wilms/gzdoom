@@ -107,7 +107,7 @@ const char *GetVersionString();
 #if defined(__APPLE__) || defined(_WIN32)
 #define GAME_DIR GAMENAME
 #else
-#define GAME_DIR ".config/" GAMENAMELOWERCASE
+#define GAME_DIR GAMENAMELOWERCASE
 #endif
 
 

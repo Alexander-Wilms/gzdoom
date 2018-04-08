@@ -860,6 +860,26 @@ FString ExpandEnvVars(const char *searchpathstring)
 
 //==========================================================================
 //
+// ExpandEnvVarFallback
+//
+// Expands environment variable references in a string. Intended primarily
+// for use with IWAD search paths in config files.
+// If the environment variable is not defined or empty, use the given fallback.
+//==========================================================================
+
+FString ExpandEnvVarFallback(const char *varname, const char *fallback) {
+	char *value = getenv (varname);
+	FString out;
+	if (value == NULL || strlen (value) == 0)
+		out += ExpandEnvVars (fallback);
+	else
+		out += value;
+
+	return out;
+}
+
+//==========================================================================
+//
 // NicePath
 //
 // Handles paths with leading ~ characters on Unix as well as environment

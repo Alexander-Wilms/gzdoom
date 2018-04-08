@@ -135,7 +135,8 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", "$HOME", true);
 		SetValueForKey ("Path", "$PROGDIR", true);
 #else
-		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
+		SetValueForKey ("Path", (ExpandEnvVarFallback
+			("XDG_CONFIG_HOME", "$HOME/.config") + "/" GAME_DIR).GetChars (), true);
 		// Arch Linux likes them in /usr/share/doom
 		// Debian likes them in /usr/share/games/doom
 		// I assume other distributions don't do anything radically different
@@ -158,7 +159,8 @@ FGameConfigFile::FGameConfigFile ()
 #elif !defined(__unix__)
 		SetValueForKey ("Path", "$PROGDIR", true);
 #else
-		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
+		SetValueForKey ("Path", (ExpandEnvVarFallback
+			("XDG_CONFIG_HOME", "$HOME/.config") + "/" GAME_DIR).GetChars (), true);
 		SetValueForKey ("Path", SHARE_DIR, true);
 		SetValueForKey ("Path", "/usr/local/share/doom", true);
 		SetValueForKey ("Path", "/usr/local/share/games/doom", true);
@@ -180,7 +182,8 @@ FGameConfigFile::FGameConfigFile ()
 #elif !defined(__unix__)
 		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
 #else
-		SetValueForKey("Path", "$HOME/" GAME_DIR "/soundfonts", true);
+		SetValueForKey ("Path", (ExpandEnvVarFallback
+			("XDG_CONFIG_HOME", "$HOME/.config") + "/" GAME_DIR "/soundfonts").GetChars (), true);
 		SetValueForKey("Path", "/usr/local/share/doom/soundfonts", true);
 		SetValueForKey("Path", "/usr/local/share/games/doom/soundfonts", true);
 		SetValueForKey("Path", "/usr/share/doom/soundfonts", true);

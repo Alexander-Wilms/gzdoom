@@ -46,24 +46,25 @@ FString GetUserFile (const char *file)
 	FString path;
 	struct stat info;
 
-	path = NicePath("$HOME/" GAME_DIR "/");
+	path = ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config");
+	path += "/" GAME_DIR "/";
 
 	if (stat (path, &info) == -1)
 	{
 		struct stat extrainfo;
 
 		// Sanity check for $HOME/.config
-		FString configPath = NicePath("$HOME/.config/");
+		FString configPath = ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config");
 		if (stat (configPath, &extrainfo) == -1)
 		{
 			if (mkdir (configPath, S_IRUSR | S_IWUSR | S_IXUSR) == -1)
 			{
-				I_FatalError ("Failed to create $HOME/.config directory:\n%s", strerror(errno));
+				I_FatalError ("Failed to create %s directory:\n%s", configPath.GetChars(), strerror(errno));
 			}
 		}
 		else if (!S_ISDIR(extrainfo.st_mode))
 		{
-			I_FatalError ("$HOME/.config must be a directory");
+			I_FatalError ("%s must be a directory", configPath.GetChars());
 		}
 
 		// This can be removed after a release or two
@@ -110,7 +111,8 @@ FString M_GetAppDataPath(bool create)
 {
 	// Don't use GAME_DIR and such so that ZDoom and its child ports can
 	// share the node cache.
-	FString path = NicePath("$HOME/.config/" GAMENAMELOWERCASE);
+	FString path = ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config");
+	path += "/" GAME_DIR;
 	if (create)
 	{
 		CreatePath(path);
@@ -130,7 +132,8 @@ FString M_GetCachePath(bool create)
 {
 	// Don't use GAME_DIR and such so that ZDoom and its child ports can
 	// share the node cache.
-	FString path = NicePath("$HOME/.config/zdoom/cache");
+	FString path = ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config");
+	path += "/zdoom/cache/";
 	if (create)
 	{
 		CreatePath(path);
@@ -203,7 +206,8 @@ FString M_GetConfigPath(bool for_reading)
 
 FString M_GetScreenshotsPath()
 {
-	return NicePath("$HOME/" GAME_DIR "/screenshots/");
+	FString path = ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config");
+	return path + "/" GAME_DIR "/screenshots/";
 }
 
 //===========================================================================
@@ -216,7 +220,7 @@ FString M_GetScreenshotsPath()
 
 FString M_GetSavegamesPath()
 {
-	return NicePath("$HOME/" GAME_DIR);
+	return ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config") + "/" GAME_DIR;
 }
 
 //===========================================================================
@@ -229,5 +233,5 @@ FString M_GetSavegamesPath()
 
 FString M_GetDocumentsPath()
 {
-	return NicePath("$HOME/" GAME_DIR);
+	return ExpandEnvVarFallback("XDG_CONFIG_HOME", "$HOME/.config") + "/" GAME_DIR;
 }

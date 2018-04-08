@@ -52,6 +52,7 @@ char *CleanseString (char *str);
 
 void CreatePath(const char * fn);
 
+FString ExpandEnvVarFallback(const char *varname, const char *fallback);
 FString ExpandEnvVars(const char *searchpathstring);
 FString NicePath(const char *path);
 
